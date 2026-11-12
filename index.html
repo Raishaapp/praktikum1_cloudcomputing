@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spotify - Raisha Aulia Putri</title>
+<style>
+  :root{
+    --bg:#000; --panel:#121212; --card:#181818; --card-hover:#282828;
+    --text:#fff; --muted:#b3b3b3; --green:#1db954;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--text);
+    display:grid;grid-template-columns:280px 1fr;grid-template-rows:1fr 90px;
+    gap:8px;padding:8px;height:100vh;
+  }
+  a{color:inherit;text-decoration:none}
+
+  /* Sidebar */
+  .sidebar{grid-row:1;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+  .box{background:var(--panel);border-radius:10px;padding:18px 20px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:22px;margin-bottom:18px}
+  .logo svg{width:34px;height:34px;fill:var(--green)}
+  .nav a{display:flex;align-items:center;gap:16px;padding:10px 0;color:var(--muted);font-weight:600;transition:.2s}
+  .nav a:hover,.nav a.active{color:var(--text)}
+  .library{flex:1;overflow:auto}
+  .library h3{font-size:15px;color:var(--muted);margin-bottom:14px}
+  .lib-item{display:flex;align-items:center;gap:12px;padding:8px;border-radius:6px;cursor:pointer}
+  .lib-item:hover{background:var(--card-hover)}
+  .lib-item .thumb{width:48px;height:48px;border-radius:6px;flex-shrink:0}
+  .lib-item b{display:block;font-size:14px}
+  .lib-item small{color:var(--muted);font-size:12px}
+
+  /* Main */
+  .main{grid-row:1;background:linear-gradient(180deg,#3b2f5c 0,#121212 340px);border-radius:10px;overflow-y:auto;padding:0 28px 28px}
+  .topbar{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:16px 0;z-index:5}
+  .arrows{display:flex;gap:10px}
+  .arrow{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.6);display:grid;place-items:center;cursor:pointer}
+  .profile{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.6);padding:4px 14px 4px 4px;border-radius:30px;font-weight:600;font-size:14px;cursor:pointer}
+  .avatar{width:30px;height:30px;border-radius:50%;background:var(--green);color:#000;display:grid;place-items:center;font-weight:800;font-size:13px}
+
+  .hero{display:flex;align-items:flex-end;gap:24px;padding:20px 0 28px}
+  .hero .cover{width:200px;height:200px;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,.6);
+    background:linear-gradient(135deg,#1db954,#191414 70%);display:grid;place-items:center;font-size:72px;font-weight:800}
+  .hero small{font-size:12px;font-weight:700;letter-spacing:1px}
+  .hero h1{font-size:clamp(32px,6vw,72px);line-height:1.05;margin:8px 0 14px;font-weight:900}
+  .hero p{color:var(--muted);font-size:14px}
+  .hero p b{color:var(--text)}
+
+  .actions{display:flex;align-items:center;gap:22px;margin-bottom:26px}
+  .big-play{width:56px;height:56px;border-radius:50%;background:var(--green);border:none;cursor:pointer;display:grid;place-items:center;transition:.15s}
+  .big-play:hover{transform:scale(1.06);background:#1ed760}
+  .big-play svg{width:24px;height:24px;fill:#000}
+  .follow{border:1px solid #727272;background:none;color:#fff;padding:8px 18px;border-radius:30px;font-weight:700;cursor:pointer}
+  .follow:hover{border-color:#fff;transform:scale(1.04)}
+
+  h2{font-size:24px;margin:10px 0 16px}
+  .quick{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:30px}
+  .quick .q{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.1);border-radius:6px;overflow:hidden;cursor:pointer;font-weight:700;font-size:14px;transition:.2s}
+  .quick .q:hover{background:rgba(255,255,255,.2)}
+  .quick .q i{width:60px;height:60px;flex-shrink:0}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:18px;margin-bottom:30px}
+  .card{background:var(--card);padding:14px;border-radius:8px;cursor:pointer;transition:.25s;position:relative}
+  .card:hover{background:var(--card-hover)}
+  .card .art{aspect-ratio:1;border-radius:6px;margin-bottom:14px;box-shadow:0 8px 20px rgba(0,0,0,.5);display:grid;place-items:center;font-size:34px;font-weight:800}
+  .card b{display:block;font-size:15px;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card span{color:var(--muted);font-size:13px;line-height:1.3;display:block}
+  .card .hover-play{position:absolute;right:20px;bottom:90px;width:44px;height:44px;border-radius:50%;background:var(--green);
+    display:grid;place-items:center;opacity:0;transform:translateY(8px);transition:.25s;box-shadow:0 8px 16px rgba(0,0,0,.4)}
+  .card:hover .hover-play{opacity:1;transform:none}
+  .hover-play svg{width:20px;height:20px;fill:#000}
+
+  .tracks{margin-bottom:30px}
+  .row{display:grid;grid-template-columns:36px 1fr 60px;align-items:center;gap:14px;padding:8px 12px;border-radius:6px;color:var(--muted);font-size:14px;cursor:pointer}
+  .row:hover{background:rgba(255,255,255,.1);color:#fff}
+  .row.head{border-bottom:1px solid #2a2a2a;border-radius:0;font-size:12px;text-transform:uppercase;letter-spacing:1px;cursor:default}
+  .row.head:hover{background:none;color:var(--muted)}
+  .row .t{display:flex;align-items:center;gap:12px;color:#fff}
+  .row .t i{width:40px;height:40px;border-radius:4px;flex-shrink:0}
+  .row.playing .t b{color:var(--green)}
+
+  footer{color:var(--muted);font-size:12px;text-align:center;padding:20px 0 0;border-top:1px solid #2a2a2a}
+
+  /* Player */
+  .player{grid-column:1/-1;grid-row:2;background:#000;display:grid;grid-template-columns:1fr 2fr 1fr;align-items:center;padding:0 16px}
+  .now{display:flex;align-items:center;gap:14px;min-width:0}
+  .now .art{width:56px;height:56px;border-radius:4px;flex-shrink:0}
+  .now b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .now small{color:var(--muted);font-size:12px}
+  .center{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .controls{display:flex;align-items:center;gap:20px}
+  .ctrl{background:none;border:none;color:var(--muted);cursor:pointer;display:grid;place-items:center;transition:.15s}
+  .ctrl:hover{color:#fff}
+  .ctrl svg{width:20px;height:20px;fill:currentColor}
+  .play{width:34px;height:34px;border-radius:50%;background:#fff;color:#000}
+  .play:hover{transform:scale(1.07);color:#000}
+  .progress{display:flex;align-items:center;gap:10px;width:100%;max-width:560px;font-size:11px;color:var(--muted)}
+  .bar{flex:1;height:4px;background:#4d4d4d;border-radius:4px;cursor:pointer;position:relative}
+  .bar .fill{height:100%;width:0;background:#fff;border-radius:4px}
+  .bar:hover .fill{background:var(--green)}
+  .right{display:flex;justify-content:flex-end;align-items:center;gap:10px;color:var(--muted)}
+  .vol{width:100px;height:4px;background:#4d4d4d;border-radius:4px}
+  .vol div{width:70%;height:100%;background:#fff;border-radius:4px}
+
+  @media(max-width:860px){
+    body{grid-template-columns:1fr}
+    .sidebar{display:none}
+    .player{grid-template-columns:1fr 1fr}
+    .right{display:none}
+    .row{grid-template-columns:30px 1fr 50px}
+    .hero{flex-direction:column;align-items:flex-start}
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="box">
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M12 0a12 12 0 100 24 12 12 0 000-24zm5.5 17.3a.75.75 0 01-1 .25c-2.8-1.7-6.3-2.1-10.4-1.1a.75.75 0 11-.35-1.45c4.5-1 8.4-.6 11.5 1.3.35.2.45.65.25 1zm1.5-3.3a.94.94 0 01-1.3.3c-3.2-2-8.1-2.5-11.9-1.4a.94.94 0 11-.55-1.8c4.3-1.3 9.7-.7 13.4 1.6.45.3.55.85.35 1.3zm.1-3.4C15.3 8.3 9 8.1 5.4 9.2a1.1 1.1 0 11-.65-2.1c4.2-1.3 11.1-1 15.5 1.6a1.1 1.1 0 01-1.15 1.9z"/></svg>
+      Spotify
+    </div>
+    <nav class="nav">
+      <a href="#" class="active">&#8962; Beranda</a>
+      <a href="#">&#9906; Cari</a>
+    </nav>
+  </div>
+  <div class="box library">
+    <h3>&#9776; Koleksi Kamu</h3>
+    <div class="lib-item"><div class="thumb" style="background:linear-gradient(135deg,#450af5,#c4efd9)"></div><div><b>Lagu yang Disukai</b><small>Playlist &bull; Raisha Aulia Putri</small></div></div>
+    <div class="lib-item"><div class="thumb" style="background:linear-gradient(135deg,#ff6a88,#ff99ac)"></div><div><b>Teman Belajar</b><small>Playlist &bull; Raisha Aulia Putri</small></div></div>
+    <div class="lib-item"><div class="thumb" style="background:linear-gradient(135deg,#f7971e,#ffd200)"></div><div><b>Coding Mode</b><small>Playlist &bull; Raisha Aulia Putri</small></div></div>
+    <div class="lib-item"><div class="thumb" style="background:linear-gradient(135deg,#11998e,#38ef7d)"></div><div><b>Santai Sore</b><small>Playlist &bull; Raisha Aulia Putri</small></div></div>
+    <div class="lib-item"><div class="thumb" style="background:linear-gradient(135deg,#4776e6,#8e54e9)"></div><div><b>Rock Klasik</b><small>Playlist &bull; Raisha Aulia Putri</small></div></div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+  <div class="topbar">
+    <div class="arrows"><div class="arrow">&#8249;</div><div class="arrow">&#8250;</div></div>
+    <div class="profile"><div class="avatar">RA</div>Raisha Aulia Putri</div>
+  </div>
+
+  <section class="hero">
+    <div class="cover">R</div>
+    <div>
+      <small>PROFIL</small>
+      <h1>Raisha Aulia Putri</h1>
+      <p><b>12 Playlist Publik</b> &bull; 248 Pengikut &bull; 63 Mengikuti</p>
+    </div>
+  </section>
+
+  <div class="actions">
+    <button class="big-play" id="heroPlay" aria-label="Putar">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <button class="follow" id="followBtn">Ikuti</button>
+  </div>
+
+  <h2>Selamat datang, Raisha Aulia Putri</h2>
+  <div class="quick">
+    <div class="q"><i style="background:linear-gradient(135deg,#450af5,#c4efd9)"></i>Lagu yang Disukai</div>
+    <div class="q"><i style="background:linear-gradient(135deg,#ff6a88,#ff99ac)"></i>Teman Belajar</div>
+    <div class="q"><i style="background:linear-gradient(135deg,#f7971e,#ffd200)"></i>Coding Mode</div>
+    <div class="q"><i style="background:linear-gradient(135deg,#11998e,#38ef7d)"></i>Santai Sore</div>
+    <div class="q"><i style="background:linear-gradient(135deg,#4776e6,#8e54e9)"></i>Rock Klasik</div>
+    <div class="q"><i style="background:linear-gradient(135deg,#ee0979,#ff6a00)"></i>Pop Hits</div>
+  </div>
+
+  <h2>Dibuat untuk Raisha Aulia Putri</h2>
+  <div class="grid">
+    <div class="card"><div class="art" style="background:linear-gradient(135deg,#667eea,#764ba2)">1</div><b>Daily Mix 1</b><span>Dewa, Jamrud, Slank dan lainnya</span><div class="hover-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+    <div class="card"><div class="art" style="background:linear-gradient(135deg,#f093fb,#f5576c)">2</div><b>Daily Mix 2</b><span>Chrisye, Melly Goeslaw, Ten2Five dan lainnya</span><div class="hover-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+    <div class="card"><div class="art" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">3</div><b>Daily Mix 3</b><span>My Chemical Romance, Arctic Monkeys, ROC</span><div class="hover-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+    <div class="card"><div class="art" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">4</div><b>Discover Weekly</b><span>Musik baru pilihan khusus untukmu</span><div class="hover-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+    <div class="card"><div class="art" style="background:linear-gradient(135deg,#fa709a,#fee140)">5</div><b>Release Radar</b><span>Rilisan terbaru dari artis favoritmu</span><div class="hover-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+    <div class="card"><div class="art" style="background:linear-gradient(135deg,#30cfd0,#330867)">6</div><b>On Repeat</b><span>Lagu yang paling sering kamu putar</span><div class="hover-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+  </div>
+
+  <h2>Lagu Populer Raisha</h2>
+  <div class="tracks" id="tracks">
+    <div class="row head"><span>#</span><span>Judul</span><span>Durasi</span></div>
+  </div>
+
+  <footer>Desain ulang tampilan Spotify (static) &bull; Dibuat oleh Raisha Aulia Putri</footer>
+</main>
+
+<!-- Player -->
+<footer class="player">
+  <div class="now">
+    <div class="art" id="nowArt"></div>
+    <div><b id="nowTitle">-</b><small id="nowArtist">-</small></div>
+  </div>
+  <div class="center">
+    <div class="controls">
+      <button class="ctrl" title="Acak"><svg viewBox="0 0 24 24"><path d="M10.6 9.2L4.4 3 3 4.4l6.2 6.2 1.4-1.4zM14.5 4l2.0 2L3 19.6 4.4 21 18 7.4l2 2V4h-5.5zm.9 9.8l-1.4 1.4 3.6 3.6L14.5 20H20v-5.5l-2 2-2.6-2.7z"/></svg></button>
+      <button class="ctrl" id="prev" title="Sebelumnya"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+      <button class="ctrl play" id="playBtn" title="Putar"><svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="ctrl" id="next" title="Berikutnya"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+      <button class="ctrl" title="Ulangi"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
+    </div>
+    <div class="progress">
+      <span id="cur">0:00</span>
+      <div class="bar" id="bar"><div class="fill" id="fill"></div></div>
+      <span id="dur">0:00</span>
+    </div>
+  </div>
+  <div class="right">
+    <span>&#128266;</span>
+    <div class="vol"><div></div></div>
+  </div>
+</footer>
+
+<script>
+  const songs = [
+    {t:"Surti Tejo", a:"Jamrud", d:272, c:"#667eea,#764ba2"},
+    {t:"Sendiri", a:"Chrisye", d:290, c:"#f093fb,#f5576c"},
+    {t:"Selimut Hati", a:"Dewa", d:305, c:"#4facfe,#00f2fe"},
+    {t:"Virus", a:"Slank", d:255, c:"#43e97b,#38f9d7"},
+    {t:"Bimbang", a:"Melly Goeslaw", d:260, c:"#fa709a,#fee140"},
+    {t:"No Scrubs", a:"TLC", d:214, c:"#30cfd0,#330867"},
+    {t:"Television", a:"ROC", d:228, c:"#ee0979,#ff6a00"},
+    {t:"Disenchanted", a:"My Chemical Romance", d:301, c:"#434343,#000000"},
+    {t:"4 Seasons", a:"ROC", d:236, c:"#11998e,#38ef7d"},
+    {t:"Happy", a:"Skinnyfabs", d:221, c:"#f7971e,#ffd200"},
+    {t:"Secret Door", a:"Arctic Monkeys", d:218, c:"#4776e6,#8e54e9"},
+    {t:"Pesawat Tempurku", a:"Iwan Fals", d:270, c:"#ff6a88,#ff99ac"},
+    {t:"Hanya Untuk Mu", a:"Ten2Five", d:250, c:"#00c6ff,#0072ff"},
+    {t:"Dua Sedjoli", a:"Dewa", d:292, c:"#f953c6,#b91d73"},
+    {t:"Ini Abadi", a:"Perunggu", d:245, c:"#7f7fd5,#86a8e7"},
+    {t:"Himalaya", a:"Maliq & D'Essentials", d:265, c:"#56ab2f,#a8e063"},
+    {t:"Pupus", a:"Dewa", d:298, c:"#e96443,#904e95"}
+  ];
+
+  let idx = 0, pos = 0, playing = false, timer = null;
+  const $ = id => document.getElementById(id);
+  const fmt = s => Math.floor(s/60) + ":" + String(Math.floor(s%60)).padStart(2,"0");
+  const PLAY = '<path d="M8 5v14l11-7z"/>';
+  const PAUSE = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>';
+
+  // Daftar lagu
+  const list = $("tracks");
+  songs.forEach((s,i)=>{
+    const r = document.createElement("div");
+    r.className = "row";
+    r.innerHTML = `<span>${i+1}</span>
+      <div class="t"><i style="background:linear-gradient(135deg,${s.c})"></i><div><b>${s.t}</b><br><small style="color:#b3b3b3">${s.a}</small></div></div>
+      <span>${fmt(s.d)}</span>`;
+    r.onclick = () => { load(i); start(); };
+    list.appendChild(r);
+  });
+
+  function load(i){
+    idx = (i + songs.length) % songs.length;
+    pos = 0;
+    const s = songs[idx];
+    $("nowTitle").textContent = s.t;
+    $("nowArtist").textContent = s.a;
+    $("nowArt").style.background = `linear-gradient(135deg,${s.c})`;
+    $("dur").textContent = fmt(s.d);
+    document.querySelectorAll(".row:not(.head)").forEach((r,k)=>r.classList.toggle("playing",k===idx));
+    update();
+  }
+  function update(){
+    $("cur").textContent = fmt(pos);
+    $("fill").style.width = (pos / songs[idx].d * 100) + "%";
+  }
+  function setIcon(){
+    $("playIcon").innerHTML = playing ? PAUSE : PLAY;
+    $("heroPlay").querySelector("svg").innerHTML = playing ? PAUSE : PLAY;
+  }
+  function start(){
+    playing = true; setIcon();
+    clearInterval(timer);
+    timer = setInterval(()=>{
+      pos++;
+      if(pos >= songs[idx].d){ load(idx+1); }
+      update();
+    },1000);
+  }
+  function stop(){ playing = false; setIcon(); clearInterval(timer); }
+  function toggle(){ playing ? stop() : start(); }
+
+  $("playBtn").onclick = toggle;
+  $("heroPlay").onclick = toggle;
+  $("next").onclick = () => { load(idx+1); if(playing) start(); };
+  $("prev").onclick = () => { load(idx-1); if(playing) start(); };
+  $("bar").onclick = e => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    pos = Math.floor((e.clientX - rect.left) / rect.width * songs[idx].d);
+    update();
+  };
+  document.querySelectorAll(".card").forEach((c,i)=>c.onclick = () => { load(i * 3 % songs.length); start(); });
+  $("followBtn").onclick = e => {
+    const b = e.currentTarget;
+    b.textContent = b.textContent === "Ikuti" ? "Mengikuti" : "Ikuti";
+  };
+
+  load(0);
+</script>
+</body>
+</html>
